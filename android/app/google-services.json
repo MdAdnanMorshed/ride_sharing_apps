@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "981860318144-giudcodjvto1fp79b2mpfgukenga0neq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.ride_sharing_apps",
+            "certificate_hash": "dd6ef2acde06b67c7008c59ee6d1f0bedbed66fc"
+          }
+        },
+        {
           "client_id": "981860318144-rprapavp6an5a4o4ie4i5hlhubl892sb.apps.googleusercontent.com",
           "client_type": 3
         }

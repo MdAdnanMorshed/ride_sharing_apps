@@ -15,9 +15,10 @@ class _HomePageState extends State<HomePage> {
   GoogleSignIn _googleSignIn = GoogleSignIn();
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-  final myController = TextEditingController();
+  final sourceLocationController = TextEditingController();
+  final destinationLocationController = TextEditingController();
   Position _currentPosition;
-  String _currentAddress;
+  String _currentAddress='Source Location';
 
     GoogleSignInAccount _googleUserInfo;
 
@@ -75,9 +76,16 @@ class _HomePageState extends State<HomePage> {
                         border: OutlineInputBorder(),
                         hintText: _currentAddress
                     ),
-                    controller: myController,
+                    controller: sourceLocationController,
                   ),
-
+                  SizedBox(height: 5,),
+                  TextField(
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Destination Location '
+                    ),
+                    controller: destinationLocationController,
+                  ),
                 ],
               ),
             ):CircularProgressIndicator(semanticsValue: 'Loading....',)
