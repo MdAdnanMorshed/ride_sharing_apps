@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ride_sharing_apps/home.dart';
 
 import 'common_widgets/GoogleSignInButtonWidget.dart';
+import 'helper/status.dart';
 
 class GoogleSignInPage extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class GoogleSignInPage extends StatefulWidget {
 }
 
 class _GoogleSignInPageState extends State<GoogleSignInPage> {
-  bool _isLoggedIn = false;
+
 
   GoogleSignInAccount _userObj;
 
@@ -28,20 +29,24 @@ class _GoogleSignInPageState extends State<GoogleSignInPage> {
              print('Google Sign In');
              _googleSignIn.signIn().then((userData) {
                setState(() {
-                 _isLoggedIn = true;
+                 AppsStatus.isLoggedIn=true;
                  _userObj = userData;
                  print('************************************');
                 print('_userObj mail Info : '+_userObj.toString());
+                Navigator.push(
+                   context,
+                   MaterialPageRoute(builder: (context) => HomePage(),
+                       settings: RouteSettings(
+                         arguments: _userObj,
+                       ),
+                   ),
+                 );
                });
              }).catchError((e) {
-               print('*----------------------------------------------------');
               print(e);
              });
 
-             /* Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage(_userObj)),
-              );*/
+
            },
          ),
        ),

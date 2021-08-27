@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ride_sharing_apps/helper/status.dart';
 import 'package:ride_sharing_apps/home.dart';
 
 import 'google_sign_in_page.dart';
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: GoogleSignInPage(),
+      home:
+      AppsStatus.isLoggedIn?HomePage(): GoogleSignInPage(),
     );
   }
 }
