@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "981860318144",
+    "project_id": "ride-sharing-apps-adnan",
+    "storage_bucket": "ride-sharing-apps-adnan.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981860318144:android:988885ec7b7aae171fa625",
+        "android_client_info": {
+          "package_name": "com.apps.ride_sharing_apps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "981860318144-rprapavp6an5a4o4ie4i5hlhubl892sb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTfruHfaWA9ofN7xxNuw2C0HGSf29fmL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "981860318144-rprapavp6an5a4o4ie4i5hlhubl892sb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
