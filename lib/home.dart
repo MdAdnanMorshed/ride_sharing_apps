@@ -25,20 +25,20 @@ class _HomePageState extends State<HomePage> {
   GoogleSignInAccount _googleUserInfo;
 
   PickResult selectedPlace;
+  double _sourceLat = 23.7780984;
+  double _sourceLng = 23.7780984;
 
-  double _lat = 23.7780984;
-  double _lng = 90.3606115;
+  double _destinationLat = 90.3606115;
+  double _destinationLng = 90.3606115;
+
   Completer<GoogleMapController> _controller = Completer();
-  //Location location = new Location();
-  bool _serviceEnabled;
-  // PermissionStatus _permissionGranted;
   CameraPosition _currentPosition1;
 
   @override
   void initState() {
     _getCurrentLocation();
     _currentPosition1 = CameraPosition(
-      target: LatLng(_lat, _lng),
+      target: LatLng(_sourceLat, _sourceLng),
       zoom: 12,
     );
     super.initState();
@@ -92,50 +92,6 @@ class _HomePageState extends State<HomePage> {
 
   _userProfileUI() {}
 
-  _sourceDestinationInputText() {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          child: TextField(
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: _currentAddress),
-            controller: sourceLocationController,
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        selectedPlace == null
-            ? Container(
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: TextField(
-                  onTap: () {
-                    print('Pick Up Destination Location ');
-                    pickUpDestinationFromMap();
-                  },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Destination Location Here '),
-                  controller: destinationLocationController,
-                ),
-              )
-            : Container(
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: TextField(
-                  onTap: () {
-                    pickUpDestinationFromMap();
-                  },
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: selectedPlace.formattedAddress ?? ""),
-                  //controller: destinationLocationController,
-                ),
-              ),
-      ],
-    );
-  }
-
   _buildMapShowPicker() {
     return Stack(
       children: [
@@ -148,7 +104,7 @@ class _HomePageState extends State<HomePage> {
             markers: {
               Marker(
                 markerId: MarkerId('current'),
-                position: LatLng(_lat, _lng),
+                position: LatLng(_sourceLat, _sourceLng),
               )
             },
             onMapCreated: (GoogleMapController controller) {
@@ -212,6 +168,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
         ),
+
+        /// Button
+        ///
+        ElevatedButton(
+            onPressed: () {
+              _calDistanceSourceToDestination().then((value) {
+                print('Distance' + value.toString());
+              });
+            },
+            child: Text('Distance Add '))
       ],
     );
   }
@@ -264,8 +230,8 @@ class _HomePageState extends State<HomePage> {
             onPlacePicked: (result) {
               selectedPlace = result;
 
-              _lat = selectedPlace.geometry.location.lat;
-              _lng = selectedPlace.geometry.location.lng;
+              _destinationLat = selectedPlace.geometry.location.lat;
+              _destinationLng = selectedPlace.geometry.location.lng;
 
               print('Select Address : ' + selectedPlace.toString());
               print('lat :' + selectedPlace.geometry.location.lat.toString());
@@ -278,5 +244,10 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  Future<double> _calDistanceSourceToDestination() async {
+    return geolocator.distanceBetween(
+        _sourceLat, _sourceLng, _destinationLat, _destinationLng);
   }
 }
