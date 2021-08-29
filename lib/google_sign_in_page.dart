@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ride_sharing_apps/home.dart';
@@ -12,45 +11,42 @@ class GoogleSignInPage extends StatefulWidget {
 }
 
 class _GoogleSignInPageState extends State<GoogleSignInPage> {
-
-
   GoogleSignInAccount _userObj;
 
   GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child:
-     Scaffold(
-       body: Center(
-         child: GoogleSignInButtonWidget(
-           title: 'Sign in with Google',
-           onPressed: () {
-             print('Google Sign In');
-             _googleSignIn.signIn().then((userData) {
-               setState(() {
-                 AppsStatus.isLoggedIn=true;
-                 _userObj = userData;
-                 print('************************************');
-                print('_userObj mail Info : '+_userObj.toString());
+    return SafeArea(
+        child: Scaffold(
+      body: Center(
+        child: GoogleSignInButtonWidget(
+          title: 'Sign in with Google',
+          onPressed: () {
+            print('Google Sign In');
+            _googleSignIn.signIn().then((userData) {
+              setState(() {
+                AppsStatus.isLoggedIn = true;
+                _userObj = userData;
+                print('************************************');
+                print('_userObj mail Info : ' + _userObj.toString());
                 Navigator.push(
-                   context,
-                   MaterialPageRoute(builder: (context) => HomePage(),
-                       settings: RouteSettings(
-                         arguments: _userObj,
-                       ),
-                   ),
-                 );
-               });
-             }).catchError((e) {
-              print(e);
-             });
-
-
-           },
-         ),
-       ),
-     )
-    );
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                    settings: RouteSettings(
+                      arguments: _userObj,
+                    ),
+                  ),
+                );
+              });
+            }).catchError((e) {
+              print('************************************');
+              print('Error :' + e);
+            });
+          },
+        ),
+      ),
+    ));
   }
 }

@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ride_sharing_apps/helper/status.dart';
 
 import 'google_sign_in_page.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -18,23 +21,32 @@ class _HomePageState extends State<HomePage> {
   final sourceLocationController = TextEditingController();
   final destinationLocationController = TextEditingController();
   Position _currentPosition;
-  String _currentAddress='Source Location';
+  String _currentAddress = 'Source Location';
+  GoogleSignInAccount _googleUserInfo;
 
-    GoogleSignInAccount _googleUserInfo;
+  PickResult selectedPlace;
 
+  double _lat = 23.7780984;
+  double _lng = 90.3606115;
+  Completer<GoogleMapController> _controller = Completer();
+  //Location location = new Location();
+  bool _serviceEnabled;
+  // PermissionStatus _permissionGranted;
+  CameraPosition _currentPosition1;
 
   @override
   void initState() {
-    // TODO: implement initState
-    print('_HomePageState.initState'+ 'Current Location');
     _getCurrentLocation();
-
+    _currentPosition1 = CameraPosition(
+      target: LatLng(_lat, _lng),
+      zoom: 12,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-     _googleUserInfo = ModalRoute.of(context).settings.arguments;
+    _googleUserInfo = ModalRoute.of(context).settings.arguments;
 
     return SafeArea(
         child: Scaffold(
@@ -54,42 +66,154 @@ class _HomePageState extends State<HomePage> {
                     child: Center(child: Text('LogOut')))
               ],
             ),
-            body:
-            AppsStatus.isLoggedIn?
-            Center(
-              child: Column(
-                children: [
+            body: AppsStatus.isLoggedIn
+                ? Center(
+                    child: Column(
+                      children: [
+                        /*  Image.network(
+                          _googleUserInfo.photoUrl,
+                          width: 200,
+                          height: 200,
+                        ),
+                        Text('Name:' +
+                            _googleUserInfo.displayName +
+                            '\nMail :' +
+                            _googleUserInfo.email),*/
 
-                  Image.network(
-                   _googleUserInfo.photoUrl,
-                   width: 200,
-                   height: 200,
+                        //     _sourceDestinationInputText(),
+                        _buildMapShowPicker(),
+                      ],
+                    ),
+                  )
+                : CircularProgressIndicator(
+                    semanticsValue: 'Loading....',
+                  )));
+  }
 
-                 ),
-                  Text('Name:' +
-                      _googleUserInfo.displayName +
-                      '\nMail :' +
-                      _googleUserInfo.email),
+  _userProfileUI() {}
 
-                  TextField(
+  _sourceDestinationInputText() {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: TextField(
+            decoration: InputDecoration(
+                border: OutlineInputBorder(), hintText: _currentAddress),
+            controller: sourceLocationController,
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        selectedPlace == null
+            ? Container(
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                child: TextField(
+                  onTap: () {
+                    print('Pick Up Destination Location ');
+                    pickUpDestinationFromMap();
+                  },
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Destination Location Here '),
+                  controller: destinationLocationController,
+                ),
+              )
+            : Container(
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                child: TextField(
+                  onTap: () {
+                    pickUpDestinationFromMap();
+                  },
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: selectedPlace.formattedAddress ?? ""),
+                  //controller: destinationLocationController,
+                ),
+              ),
+      ],
+    );
+  }
+
+  _buildMapShowPicker() {
+    return Stack(
+      children: [
+        Container(
+          height: 700,
+          width: 400,
+          child: GoogleMap(
+            zoomControlsEnabled: false,
+            initialCameraPosition: _currentPosition1,
+            markers: {
+              Marker(
+                markerId: MarkerId('current'),
+                position: LatLng(_lat, _lng),
+              )
+            },
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
+        ),
+
+        ///Source
+        Positioned(
+            left: 2,
+            //top: 20,
+            child: Container(
+              width: 350,
+              // height: 100,
+              color: Colors.grey.shade50,
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: TextField(
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(), hintText: _currentAddress),
+                controller: sourceLocationController,
+              ),
+            )),
+
+        SizedBox(
+          height: 5,
+        ),
+
+        ///Destination
+        Positioned(
+          left: 2,
+          top: 80,
+          child: selectedPlace == null
+              ? Container(
+                  color: Colors.grey.shade50,
+                  width: 350,
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: TextField(
+                    onTap: () {
+                      print('Pick Up Destination Location ');
+                      pickUpDestinationFromMap();
+                    },
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: _currentAddress
-                    ),
-                    controller: sourceLocationController,
-                  ),
-                  SizedBox(height: 5,),
-                  TextField(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Destination Location '
-                    ),
+                        hintText: 'Destination Location Here '),
                     controller: destinationLocationController,
                   ),
-                ],
-              ),
-            ):CircularProgressIndicator(semanticsValue: 'Loading....',)
-        ));
+                )
+              : Container(
+                  width: 350,
+                  color: Colors.grey.shade50,
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: TextField(
+                    onTap: () {
+                      pickUpDestinationFromMap();
+                    },
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: selectedPlace.formattedAddress ?? ""),
+                    //controller: destinationLocationController,
+                  ),
+                ),
+        ),
+      ],
+    );
   }
 
   _getCurrentLocation() {
@@ -117,7 +241,7 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         _currentAddress =
-        "${place.name}, ${place.subLocality}, ${place.postalCode},${place.country}}";
+            "${place.name}, ${place.subLocality}, ${place.postalCode},${place.country}}";
         print('address :');
         print(_currentAddress);
       });
@@ -125,82 +249,34 @@ class _HomePageState extends State<HomePage> {
       print(e);
     }
   }
-}
 
-/*
-import 'package:flutter/material.dart';
+  Widget pickUpDestinationFromMap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return PlacePicker(
+            apiKey: 'AIzaSyCXmFGriFOWjViwXVslmLQp0Vn09DmlEfs',
+            // initialPosition: ,
+            useCurrentLocation: true,
+            selectInitialPosition: true,
+            usePlaceDetailSearch: true,
+            onPlacePicked: (result) {
+              selectedPlace = result;
 
-void main() => runApp(const MyApp());
+              _lat = selectedPlace.geometry.location.lat;
+              _lng = selectedPlace.geometry.location.lng;
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+              print('Select Address : ' + selectedPlace.toString());
+              print('lat :' + selectedPlace.geometry.location.lat.toString());
+              print('lng :' + selectedPlace.geometry.location.lng.toString());
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Retrieve Text Input',
-      home: MyCustomForm(),
-    );
-  }
-}
-
-// Define a custom Form widget.
-class MyCustomForm extends StatefulWidget {
-  const MyCustomForm({Key? key}) : super(key: key);
-
-  @override
-  _MyCustomFormState createState() => _MyCustomFormState();
-}
-
-// Define a corresponding State class.
-// This class holds data related to the Form.
-class _MyCustomFormState extends State<MyCustomForm> {
-  // Create a text controller and use it to retrieve the current value
-  // of the TextField.
-  final myController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Start listening to changes.
-    myController.addListener(_printLatestValue);
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is removed from the widget tree.
-    // This also removes the _printLatestValue listener.
-    myController.dispose();
-    super.dispose();
-  }
-
-  void _printLatestValue() {
-    print('Second text field: ${myController.text}');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Retrieve Text Input'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              onChanged: (text) {
-                print('First text field: $text');
-              },
-            ),
-            TextField(
-              controller: myController,
-            ),
-          ],
-        ),
+              Navigator.of(context).pop();
+              setState(() {});
+            },
+          );
+        },
       ),
     );
   }
 }
- */

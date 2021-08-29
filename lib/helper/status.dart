@@ -1,3 +1,3 @@
-class AppsStatus{
-  static bool isLoggedIn = false;
+class AppsStatus {
+  static bool isLoggedIn = true;
 }
